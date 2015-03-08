@@ -102,6 +102,22 @@ public class YieldTest {
         assertEquals("foo", strings.iterator().next());
     }
 
+
+    @Test public void autoclose_infinite_iterator() {
+        try (ClosableIterator<Integer> positiveIntegers = positiveIntegers().iterator()) {
+            assertEquals(Integer.valueOf(1), positiveIntegers.next());
+            assertEquals(Integer.valueOf(2), positiveIntegers.next());
+            assertEquals(Integer.valueOf(3), positiveIntegers.next());
+        }
+    }
+
+    public static Yielderable<Integer> positiveIntegers() {
+        return yield -> {
+            int i = 0;
+            while (true) yield.returning(++i);
+        };
+    }
+
     interface SideEffects {
         void sideEffect(int sequence);
     }

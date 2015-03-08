@@ -18,7 +18,7 @@ public interface Yielderable<T> extends Iterable<T> {
 
     void execute(YieldDefinition<T> builder);
 
-    default Iterator<T> iterator() {
+    default ClosableIterator<T> iterator() {
         YieldDefinition<T> yieldDefinition = new YieldDefinition<>();
         Thread collectorThread = new Thread(() -> {
             yieldDefinition.waitUntilFirstValueRequested();
@@ -35,7 +35,7 @@ public interface Yielderable<T> extends Iterable<T> {
     }
 }
 
-class YieldDefinition<T> implements Iterable<T>, Iterator<T>, AutoCloseable {
+class YieldDefinition<T> implements Iterable<T>, ClosableIterator<T> {
     private final SynchronousQueue<Message<T>> dataChannel = new SynchronousQueue<>();
     private final SynchronousQueue<FlowControl> flowChannel = new SynchronousQueue<>();
     private final AtomicReference<Optional<T>> currentValue = new AtomicReference<>(Optional.empty());
@@ -51,7 +51,7 @@ class YieldDefinition<T> implements Iterable<T>, Iterator<T>, AutoCloseable {
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public ClosableIterator<T> iterator() {
         return this;
     }
 
@@ -95,7 +95,7 @@ class YieldDefinition<T> implements Iterable<T>, Iterator<T>, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         toRunOnClose.forEach(Runnable::run);
     }
 
