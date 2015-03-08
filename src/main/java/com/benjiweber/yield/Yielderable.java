@@ -1,7 +1,10 @@
 package com.benjiweber.yield;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -17,21 +20,26 @@ public interface Yielderable<T> extends Iterable<T> {
 
     default Iterator<T> iterator() {
         YieldDefinition<T> yieldDefinition = new YieldDefinition<>();
-        new Thread(() -> {
+        Thread collectorThread = new Thread(() -> {
             yieldDefinition.waitUntilFirstValueRequested();
             try {
                 execute(yieldDefinition);
-            } catch (BreakException e) {}
+            } catch (BreakException e) {
+            }
             yieldDefinition.signalComplete();
-        }).start();
+        });
+        collectorThread.setDaemon(true);
+        collectorThread.start();
+        yieldDefinition.onClose(collectorThread::interrupt);
         return yieldDefinition.iterator();
     }
 }
 
-class YieldDefinition<T> implements Iterable<T>, Iterator<T> {
+class YieldDefinition<T> implements Iterable<T>, Iterator<T>, AutoCloseable {
     private final SynchronousQueue<Message<T>> dataChannel = new SynchronousQueue<>();
     private final SynchronousQueue<FlowControl> flowChannel = new SynchronousQueue<>();
     private final AtomicReference<Optional<T>> currentValue = new AtomicReference<>(Optional.empty());
+    private List<Runnable> toRunOnClose = new CopyOnWriteArrayList<>();
 
     public void returning(T value) {
         publish(value);
@@ -84,6 +92,21 @@ class YieldDefinition<T> implements Iterable<T>, Iterator<T> {
 
     private void calculateNextValue() {
         unchecked(() -> flowChannel.put(youMayProceed));
+    }
+
+    @Override
+    public void close() throws Exception {
+        toRunOnClose.forEach(Runnable::run);
+    }
+
+    public void onClose(Runnable onClose) {
+        this.toRunOnClose.add(onClose);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        close();
+        super.finalize();
     }
 }
 
