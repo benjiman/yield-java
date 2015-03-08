@@ -30,9 +30,9 @@ public class YieldTest {
 
     public static Yielderable<Integer> oneToFive(SideEffects sideEffects) {
         return yield -> {
-            for (int i = 0; i < 10; i++) {
-                sideEffects.sideEffect(i + 1);
-                if (i == 5) yield.breaking();
+            for (int i = 1; i < 10; i++) {
+                sideEffects.sideEffect(i);
+                if (i == 6) yield.breaking();
                 yield.returning(i);
             }
         };
@@ -70,7 +70,7 @@ public class YieldTest {
         for (Integer number : oneToFive(ignoreSideEffects)) {
             results.add(number);
         }
-        assertEquals(asList(0,1,2,3,4), results);
+        assertEquals(asList(1,2,3,4,5), results);
     }
 
 
