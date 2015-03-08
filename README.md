@@ -3,7 +3,7 @@ Implementation of c#'s Yield to Java. Using threads
 
 ```java
 ArrayList<Integer> results = new ArrayList<>();
-for (Integer number : oneToFive(ignoreSideEffects)) results.add(number);
+for (Integer number : oneToFive()) results.add(number);
 assertEquals(asList(1,2,3,4,5), results);
 
 public static Yielderable<Integer> oneToFive() {
