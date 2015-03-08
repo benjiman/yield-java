@@ -1,6 +1,10 @@
 # yield-java
 Implementation of c#'s Yield to Java. Using threads
 
+Based on Jim Blackler's implementation http://jimblackler.net/blog/?p=61
+
+Updated to take advantage of Java 8 features.
+
 ```java
 @Test public void example() {
     ArrayList<Integer> results = new ArrayList<>();
