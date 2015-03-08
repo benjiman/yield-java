@@ -47,3 +47,22 @@ public static Yielderable<String> fooBar(SideEffects sideEffects) {
    verifyNoMoreInteractions(sideEffects);
 }
 ```
+
+You can also use for infinite iterables, but you should close the iterator when you're done with it to free up the thread.
+
+```java
+@Test public void example() {
+   try (ClosableIterator<Integer> positiveIntegers = positiveIntegers().iterator()) {
+       assertEquals(Integer.valueOf(1), positiveIntegers.next());
+       assertEquals(Integer.valueOf(2), positiveIntegers.next());
+       assertEquals(Integer.valueOf(3), positiveIntegers.next());
+   }
+}
+
+public static Yielderable<Integer> positiveIntegers() {
+   return yield -> {
+       int i = 0;
+       while (true) yield.returning(++i);
+   };
+}
+```
