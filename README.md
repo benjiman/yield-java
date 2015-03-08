@@ -1,5 +1,5 @@
 # yield-java
-Implementation of c#'s Yield to Java. https://msdn.microsoft.com/en-us/library/9k7k7cf0.aspx
+Implementation of c#'s Yield in Java. https://msdn.microsoft.com/en-us/library/9k7k7cf0.aspx
 
 Based on Jim Blackler's implementation using Threads. http://jimblackler.net/blog/?p=61
 
