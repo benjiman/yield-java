@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015 Benji Weber
- * Licensed under the MIT License
- */
 package com.benjiweber.yield;
 
 import java.util.ArrayList;
